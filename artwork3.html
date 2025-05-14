@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MecènArt - Louise debout</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: white;
+        }
+        
+        header {
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #f0f0f0;
+            position: relative;
+        }
+        
+        .logo {
+            max-width: 200px;
+        }
+        
+        .nav-icons {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nav-icon {
+            display: inline-block;
+            text-align: center;
+            font-size: 12px;
+        }
+        
+        .icon {
+            width: 20px;
+            height: 20px;
+            margin-bottom: 5px;
+            background-color: #ddd;
+            border-radius: 50%;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 8px 15px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            text-decoration: none;
+            color: black;
+        }
+        
+        .artwork-detail {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .artwork-header {
+            display: flex;
+            margin-bottom: 30px;
+        }
+        
+        .artwork-primary-image {
+            width: 50%;
+            height: 400px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .artwork-primary-info {
+            width: 50%;
+            padding: 0 30px;
+        }
+        
+        .artwork-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .artist-name {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .ticket-info {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .ticket-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .ticket-label {
+            font-weight: bold;
+        }
+        
+        .collect-chance-big {
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .buy-ticket {
+            display: block;
+            background-color: #FFB74D;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        
+        .artwork-description {
+            margin-top: 30px;
+        }
+        
+        .description-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .description-text {
+            line-height: 1.6;
+        }
+        
+        .artwork-gallery {
+            margin-top: 40px;
+        }
+        
+        .gallery-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .thumbnail-container {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        
+        .thumbnail {
+            width: 100px;
+            height: 100px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+        }
+        
+        .thumbnail:hover {
+            opacity: 0.8;
+        }
+        
+        .green-drop {
+            color: green;
+        }
+        
+        /* Style pour le modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+        }
+        
+        @media (max-width: 768px) {
+            .artwork-header {
+                flex-direction: column;
+            }
+            
+            .artwork-primary-image, .artwork-primary-info {
+                width: 100%;
+            }
+            
+            .artwork-primary-info {
+                padding: 20px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="back-button">← Retour</a>
+        <img src="images/mecenart_logo.png" alt="MecènArt Logo" class="logo">
+        <div class="nav-icons">
+            <div class="nav-icon">
+                <div class="icon"></div>
+                <div>Recherches</div>
+            </div>
+            <div class="nav-icon">
+                <div class="icon"></div>
+                <div>Favoris</div>
+            </div>
+            <div class="nav-icon">
+                <div class="icon"></div>
+                <div>Messages</div>
+            </div>
+            <div class="nav-icon">
+                <div class="icon"></div>
+                <div>Se connecter</div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="artwork-detail">
+        <div class="artwork-header">
+           <img src="images/armureGrande.jpg" alt="armure" class="artwork-image">
+            <div class="artwork-primary-info">
+                <h1 class="artwork-title">armure</h1>
+                <div class="artist-name">Mathieu Schoettl</div>
+                
+                <div class="ticket-info">
+                    <div class="ticket-row">
+                        <span class="ticket-label">Jeton</span>
+                        <span>200 <span class="green-drop">€ </span></span>
+                    </div>
+                    <div class="ticket-row">
+                        <span class="ticket-label">Prix de l'œuvre</span>
+                        <span>4000€ <span class="green-drop"> </span></span>
+                    </div>
+                    <div class="ticket-row">
+                        <span class="ticket-label">Aspirants</span>
+                        <span>11/20</span>
+                    </div>
+                    <div class="ticket-row">
+                        <span class="ticket-label">Chance de collectionner</span>
+                    </div>
+                    <div class="collect-chance-big">1/20</div>
+                </div>
+                
+                <a href="#" class="buy-ticket">Acquerir des jetons</a>
+            </div>
+        </div>
+        
+        <div class="artwork-description">
+            <h2 class="description-title">Description de l'œuvre</h2>
+             <p class="description-text">
+                "Armure" est une installation sculpturale contemporaine composée de trois figures anthropomorphes aux couleurs vives. Chaque sculpture, réalisée dans ce qui semble être du plastique brillant ou de la résine, se présente dans une teinte monochrome distincte : bleu électrique, vert fluo et rose.
+                <br><br>
+                Ces silhouettes humanoïdes, à la posture légèrement fléchie et aux proportions stylisées, évoquent une réinterprétation moderne de l'armure traditionnelle. L'artiste joue avec les codes de la protection corporelle tout en insufflant une dimension ludique et pop art à travers l'utilisation de couleurs synthétiques éclatantes.
+                <br><br>
+                L'installation dialogue avec l'espace brut qui l'accueille - un atelier ou un entrepôt aux murs de briques - créant un contraste saisissant entre l'aspect industriel du lieu et le caractère presque futuriste des sculptures. Cette œuvre s'inscrit dans une réflexion sur la frontière entre artisanat traditionnel et esthétique contemporaine, tout en questionnant notre rapport au corps protégé, augmenté ou transformé par des extensions artificielles.
+            </p>
+        </div>
+        
+        <div class="artwork-gallery">
+            <h2 class="gallery-title">Plus de photos</h2>
+            <div class="thumbnail-container">
+                <div class="thumbnail">Vue de face</div>
+                <div class="thumbnail">Vue de profil</div>
+                <div class="thumbnail">Vue de dos</div>
+                <div class="thumbnail">Détail</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ajout du modal -->
+    <div id="paymentModal" class="modal">
+        <iframe src="paiement-modale.html" class="modal-content" frameborder="0"></iframe>
+    </div>
+    
+    <script>
+        // JavaScript pour la galerie d'images
+        document.querySelectorAll('.thumbnail').forEach(thumb => {
+            thumb.addEventListener('click', function() {
+                // Dans cette version simplifiée, on affiche juste le texte
+                alert('Changement de vue : ' + this.textContent);
+            });
+        });
+        
+        // Modal de paiement
+        const modal = document.getElementById('paymentModal');
+        const buyButton = document.querySelector('.buy-ticket');
+        
+        // Ouvrir le modal quand on clique sur le bouton d'achat
+        buyButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Récupérer les données depuis la page principale
+            const artwork = {
+                title: document.querySelector('.artwork-title').textContent,
+                artist: document.querySelector('.artist-name').textContent,
+                price: document.querySelector('.ticket-row:nth-child(2) span:last-child').textContent.trim(),
+                ticketPrice: document.querySelector('.ticket-row:nth-child(1) span:last-child').textContent.trim(),
+                chances: document.querySelector('.collect-chance-big').textContent,
+                imageSrc: document.querySelector('.artwork-image').src,
+                       // Correction: assurons-nous de récupérer correctement l'élément contenant les aspirants
+        aspirants: document.querySelector('.ticket-row:nth-child(3) span:last-child').textContent.trim()
+            };
+            
+            // Afficher la modale
+            modal.style.display = 'flex';
+            
+            // Envoyer les données à la modale après un court délai pour s'assurer que l'iframe est chargée
+            setTimeout(() => {
+                const iframe = document.querySelector('.modal-content');
+                iframe.contentWindow.postMessage({
+                    type: 'artworkData',
+                    data: artwork
+                }, '*');
+            }, 500);
+        });
+        
+        // Fermer le modal si on clique en dehors
+        window.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        // Fonction pour recevoir les messages de l'iframe
+        window.addEventListener('message', function(event) {
+            if (event.data === 'closeModal') {
+                modal.style.display = 'none';
+            }
+        }, false);
+    </script>
+</body>
+</html>

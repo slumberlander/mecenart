@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paiement - MecènArt</title>
+    <!-- SDK EmailJS le plus récent -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .payment-container {
+            display: flex;
+            max-width: 900px;
+            width: 100%;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .payment-form {
+            flex: 1.2;
+            padding: 30px;
+        }
+        
+        .payment-image {
+            flex: 0.8;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .artwork-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .payment-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .payment-methods {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .payment-method-icon {
+            width: 50px;
+            height: 30px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-col {
+            flex: 1;
+        }
+        
+        .submit-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #4cd137;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .submit-button:hover {
+            background-color: #44bd32;
+        }
+        
+        .payment-amount {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        /* Style pour les informations sur l'œuvre */
+        .artwork-info {
+            margin-bottom: 20px;
+            padding: 12px;
+            background-color: #f2f8ff;
+            border-radius: 8px;
+            border-left: 4px solid #4a6fa5;
+        }
+        
+        .artwork-info p {
+            margin: 5px 0;
+            font-size: 15px;
+        }
+        
+        .artwork-info strong {
+            color: #4a6fa5;
+        }
+        
+        /* Style pour le cartouche des chances */
+        .chances-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #fff8e1;
+            border-radius: 8px;
+            border: 2px solid #ffc107;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chances-icon {
+            font-size: 28px;
+            margin-right: 15px;
+            color: #ff9800;
+        }
+        
+        .chances-info {
+            flex: 1;
+        }
+        
+        .chances-title {
+            font-weight: bold;
+            color: #ff6f00;
+            margin-bottom: 5px;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+        
+        .chances-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e65100;
+        }
+        
+        .action-button {
+            position: absolute;
+            bottom: 30px;
+            width: 80%;
+            padding: 15px;
+            background-color: #4cd137;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        
+        .action-button:hover {
+            background-color: #44bd32;
+        }
+        
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        /* Style spécifique pour le champ email */
+        .email-group {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #4cd137;
+        }
+        
+        .email-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .email-input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #4cd137;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: white;
+        }
+        
+        .email-desc {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        /* Style pour l'état de chargement */
+        .loading-state {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: #4cd137;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Cacher le contenu principal jusqu'à ce que les données soient chargées */
+        .content-wrapper {
+            display: none;
+        }
+
+        /* Style pour le sélecteur de quantité */
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            width: 120px;
+            height: 40px;
+        }
+        
+        .quantity-btn {
+            width: 40px;
+            height: 40px;
+            background-color: #f0f0f0;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .quantity-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .quantity-input {
+            width: 40px;
+            height: 40px;
+            border: none;
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        /* Sélecteur de quantité en ligne */
+        .quantity-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quantity-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Style pour l'affichage du prix unitaire */
+        .unit-price {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .payment-container {
+                flex-direction: column;
+                max-width: 95%;
+            }
+            
+            .payment-image {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <!-- État de chargement initial -->
+        <div id="loading-state" class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Chargement des informations...</p>
+        </div>
+        
+        <!-- Contenu principal (caché au départ) -->
+        <div id="content-wrapper" class="content-wrapper">
+            <div class="payment-form">
+                <h2 class="payment-title">Mécènez et tentez de collectionner.</h2>
+                
+                <div class="payment-amount">
+                    <span id="payment-amount"></span>
+                    
+                    <div class="quantity-wrapper">
+                        <span class="quantity-label">Quantité:</span>
+                        <div class="quantity-selector">
+                            <button class="quantity-btn" id="decrease-quantity">-</button>
+                            <input type="number" min="1" value="1" class="quantity-input" id="quantity-input">
+                            <button class="quantity-btn" id="increase-quantity">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="unit-price">Prix unitaire: <span id="unit-price"></span></div>
+                
+                <!-- Information sur l'œuvre -->
+                <div class="artwork-info">
+                    <p><strong>Œuvre :</strong> <span id="oeuvre-name"></span></p>
+                    <p><strong>Artiste :</strong> <span id="artiste-name"></span></p>
+                </div>
+                
+                <!-- Cartouche des chances (séparé) -->
+                <div class="chances-container">
+                    <div class="chances-icon">🎯</div>
+                    <div class="chances-info">
+                        <div class="chances-title">Vos chances</div>
+                        <div class="chances-value"><span id="chances-text">1 chance sur <span id="nombre-chances"></span></span></div>
+                    </div>
+                </div>
+                
+                <!-- Champ email obligatoire -->
+                <div class="email-group">
+                    <div class="email-title">Votre adresse email</div>
+                    <input type="email" class="email-input" placeholder="votreadresse@email.com" required>
+                    <div class="email-desc">Nous vous enverrons votre reçu de mécénat et les informations sur l'œuvre à cette adresse</div>
+                </div>
+                
+                <div class="payment-methods">
+                    <div class="payment-method-icon">Visa</div>
+                    <div class="payment-method-icon">MC</div>
+                    <div class="payment-method-icon">Amex</div>
+                    <div class="payment-method-icon">Disc</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Nom sur la carte</label>
+                    <input type="text" class="form-input" placeholder="Prénom Nom (simulation)">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Numéro de carte</label>
+                    <input type="text" class="form-input" placeholder="1234 5678 9012 3456 (simulation)">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label class="form-label">Date d'expiration</label>
+                            <input type="text" class="form-input" placeholder="MM / AA (simulation)">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label class="form-label">Code de sécurité</label>
+                            <input type="text" class="form-input" placeholder="CVC (simulation)">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Code postal</label>
+                    <input type="text" class="form-input" placeholder="Code postal (simulation)">
+                </div>
+                
+                <button class="submit-button" id="submit-button">Payer</button>
+            </div>
+            
+            <div class="payment-image">
+                <img src="" alt="" class="artwork-image" id="artwork-image">
+                <button class="close-button" id="closeModal">&times;</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales pour les informations sur l'œuvre
+        let nomArtiste = "";
+        let oeuvre = "";
+        let nombre = 0;
+        let prixTicket = "";
+        let prixUnitaire = 0; // Stocke le prix unitaire en nombre
+        let imageSrc = "";
+        let aspirants = ""; // Variable originale (format "x/n")
+        let nombreActuel = 0; // Nouvelle variable pour stocker x (le numérateur)
+        let totalJoueurs = 0; // Nouvelle variable pour stocker n (le dénominateur)
+        let dataReceived = false;
+        let quantite = 1; // Quantité par défaut
+        
+        // Initialisation de EmailJS
+        (function() {
+            // Votre clé publique EmailJS
+            emailjs.init("c3ghQNwgojRkAlN2h");
+            
+            // Méthode alternative pour gérer les erreurs EmailJS
+            window.addEventListener('error', function(event) {
+                if (event.message && event.message.includes('emailjs')) {
+                    console.error('EmailJS error intercepted:', event.message);
+                }
+            });
+        })();
+        
+        // Écouteur pour recevoir les messages de la page principale
+        window.addEventListener('message', function(event) {
+            // Fermer la modale
+            if (event.data === 'closeModal') {
+                window.parent.postMessage('closeModal', '*');
+            }
+            
+            // Recevoir les données de l'œuvre
+            if (event.data && event.data.type === 'artworkData') {
+                const artworkData = event.data.data;
+                
+                // Mettre à jour les variables globales
+                oeuvre = artworkData.title;
+                nomArtiste = artworkData.artist;
+                // Récupérer le prix du jeton (ticket) depuis les fichiers artwork
+                prixTicket = artworkData.ticketPrice || "5 €"; // Utilisera désormais le prix envoyé de l'artwork
+                
+                // Extraire la valeur numérique du prix (sans le symbole €)
+                prixUnitaire = parseFloat(prixTicket.replace('€', '').replace(',', '.').trim());
+                
+                nombre = artworkData.chances.split('/')[1] || 80; // Extraire le nombre de la chaîne "1/80"
+                imageSrc = artworkData.imageSrc;
+                aspirants = artworkData.aspirants;
+                
+                if (aspirants && aspirants.includes('/')) {
+                    const parts = aspirants.split('/');
+                    nombreActuel = parseInt(parts[0], 10) || 0; // Convertir en nombre
+                    totalJoueurs = parseInt(parts[1], 10) || 0; // Convertir en nombre
+                }
+                
+                // Marquer que les données ont été reçues
+                dataReceived = true;
+
+                // Afficher les valeurs extraites dans la console pour débogage
+                console.log(`Aspirants: ${aspirants}, nombreActuel: ${nombreActuel}, totalJoueurs: ${totalJoueurs}`);
+                
+                // Mettre à jour l'interface utilisateur
+                updateUI();
+                
+                // Afficher le contenu et masquer l'état de chargement
+                showContent();
+            }
+        }, false);
+        
+        // Fonction pour afficher le contenu une fois les données reçues
+        function showContent() {
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('content-wrapper').style.display = 'flex';
+        }
+        
+        // Fonction pour mettre à jour l'interface utilisateur
+        function updateUI() {
+            // Mettre à jour les informations sur l'œuvre dans l'interface
+            document.getElementById('oeuvre-name').textContent = oeuvre;
+            document.getElementById('artiste-name').textContent = nomArtiste;
+            document.getElementById('nombre-chances').textContent = nombre;
+            
+            // Afficher le prix unitaire
+            document.getElementById('unit-price').textContent = prixTicket;
+            
+            // Calculer et afficher le montant total
+            updateTotalPrice();
+            
+            // Mettre à jour l'image
+            const artworkImage = document.getElementById('artwork-image');
+            artworkImage.src = imageSrc;
+            artworkImage.alt = oeuvre;
+            
+            // Mettre à jour le titre de la page
+            document.title = `Paiement - MecènArt - ${oeuvre} par ${nomArtiste}`;
+            
+            // Mettre à jour le texte du bouton en fonction de la quantité
+            updateButtonText();
+        }
+        
+        // Fonction pour mettre à jour le prix total
+        function updateTotalPrice() {
+            if (isNaN(prixUnitaire)) {
+                console.error("Prix unitaire invalide:", prixTicket);
+                return;
+            }
+            
+            const montantTotal = (prixUnitaire * quantite).toFixed(2).replace('.', ',') + " €";
+            document.getElementById('payment-amount').textContent = montantTotal;
+            
+            // Mettre à jour le texte des chances en fonction de la quantité
+            const chancesText = document.getElementById('chances-text');
+            if (quantite === 1) {
+                chancesText.textContent = `${quantite} chance sur ${nombre}`;
+            } else {
+                chancesText.textContent = `${quantite} chances sur ${nombre}`;
+            }
+            
+            // Mettre à jour le texte du bouton
+            updateButtonText();
+        }
+        
+        // Fonction pour mettre à jour le texte du bouton
+        function updateButtonText() {
+            const submitButton = document.getElementById('submit-button');
+            if (quantite === 1) {
+                submitButton.textContent = `Payer pour mécéner "${oeuvre}" et tenter de l'acquérir`;
+            } else {
+                submitButton.textContent = `Payer pour ${quantite} chances d'acquérir "${oeuvre}"`;
+            }
+        }
+        
+        // Gestionnaires d'événements pour le sélecteur de quantité
+        document.addEventListener('DOMContentLoaded', function() {
+            const decreaseBtn = document.getElementById('decrease-quantity');
+            const increaseBtn = document.getElementById('increase-quantity');
+            const quantityInput = document.getElementById('quantity-input');
+            
+            decreaseBtn.addEventListener('click', function() {
+                if (quantite > 1) {
+                    quantite--;
+                    quantityInput.value = quantite;
+                    updateTotalPrice();
+                }
+            });
+            
+            increaseBtn.addEventListener('click', function() {
+                // Limiter la quantité au nombre total de chances
+                if (quantite < parseInt(nombre, 10)) {
+                    quantite++;
+                    quantityInput.value = quantite;
+                    updateTotalPrice();
+                } else {
+                    alert(`Vous ne pouvez pas sélectionner plus de ${nombre} unités pour cette œuvre.`);
+                }
+            });
+            
+            quantityInput.addEventListener('change', function() {
+                let newValue = parseInt(this.value, 10);
+                
+                // Valider la saisie
+                if (isNaN(newValue) || newValue < 1) {
+                    newValue = 1;
+                }
+                
+                // Limiter la quantité au nombre total de chances
+                if (newValue > parseInt(nombre, 10)) {
+                    newValue = parseInt(nombre, 10);
+                    alert(`Vous ne pouvez pas sélectionner plus de ${nombre} unités pour cette œuvre.`);
+                }
+                
+                quantite = newValue;
+                this.value = quantite;
+                updateTotalPrice();
+            });
+        });
+        
+        // Fonction pour envoyer un e-mail via EmailJS
+        function sendEmail(email) {
+            // Création des données à envoyer avec les variables correctes attendues par le template
+            const templateParams = {
+                // Les 3 variables attendues par le template - converties en chaînes de caractères
+                nom: String(nomArtiste),
+                oeuvre: String(oeuvre),
+                nombre: String(nombre),
+                aspirants: String(aspirants),
+                nombreActuel: String(nombreActuel), // Ajout du numérateur
+                totalJoueurs: String(totalJoueurs), // Ajout du dénominateur
+                quantite: String(quantite), // Ajout de la quantité
+                // Information du destinataire
+                to_email: email,
+                // Ajout de paramètres supplémentaires qui pourraient être nécessaires
+                from_name: "MecènArt",
+                reply_to: "contact@mecenart.com"
+            };
+            
+            // Débogage - Afficher les paramètres exacts envoyés
+            console.log("Paramètres envoyés à EmailJS:", JSON.stringify(templateParams));
+            
+            // Afficher un indicateur de chargement ou désactiver le bouton
+            const submitButton = document.getElementById('submit-button');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = "Traitement en cours...";
+            submitButton.disabled = true;
+            
+            // Envoi de l'email avec EmailJS
+            emailjs.send("service_a07yz1j", "template_74lr7xp", templateParams)
+                .then(function(response) {
+                    console.log("Email envoyé avec succès!", response.status, response.text);
+                    console.log("Réponse complète:", JSON.stringify(response));
+                })
+                .catch(function(error) {
+                    console.error("Erreur lors de l'envoi de l'email:", error);
+                    if (error.text) {
+                        console.error("Message d'erreur:", error.text);
+                    }
+                    
+                    // Message d'erreur plus détaillé pour l'utilisateur
+                    alert(`Erreur lors de l'envoi de l'email. Veuillez vérifier votre adresse email ou réessayer plus tard. (Code: ${error.status || 'inconnu'})`);
+                })
+                .finally(function() {
+                    // Rétablir l'état du bouton
+                    submitButton.textContent = originalText;
+                    submitButton.disabled = false;
+                });
+        }
+        
+        // Fonction pour ouvrir la modale de confirmation
+        function openConfirmationModal(email) {
+            // Créer une iframe pour la modale de confirmation
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'fixed';
+            iframe.style.top = '0';
+            iframe.style.left = '0';
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.style.zIndex = '9999';
+            iframe.src = 'confirmation-modal.html'; // Chemin vers le fichier de la modale de confirmation
+            
+            // Ajouter l'iframe au corps du document
+            document.body.appendChild(iframe);
+            
+            // Attendre que l'iframe soit chargée
+            iframe.onload = function() {
+                // Préparer les données à envoyer à la modale de confirmation
+                const confirmationData = {
+                    type: 'confirmationData',
+                    data: {
+                        artist: nomArtiste,
+                        title: oeuvre,
+                        currentPosition: nombreActuel,
+                        totalPlayers: totalJoueurs,
+                        imageSrc: imageSrc,
+                        email: email, // Ajout de l'email de l'utilisateur
+                        quantite: quantite // Ajout de la quantité
+                    }
+                };
+                
+                // Envoyer les données à la modale de confirmation
+                iframe.contentWindow.postMessage(confirmationData, '*');
+                
+                // Envoyer l'email de confirmation
+                sendEmail(email);/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                
+                // Cache la modale d'origine mais ne la ferme pas complètement
+                // pour s'assurer que la nouvelle modale s'affiche correctement
+                document.querySelector('.payment-container').style.display = 'none';
+            };
+            
+            // Écouter les messages de la modale de confirmation
+            window.addEventListener('message', function(event) {
+                if (event.data === 'closeModal') {
+                    // Fermer la modale de confirmation
+                    document.body.removeChild(iframe);
+                    // Fermer également la modale d'origine
+                    window.parent.postMessage('closeModal', '*');
+                } else if (event.data === 'closeOriginalModal') {
+                    // La fenêtre d'origine ne sera plus fermée automatiquement
+                    // pour s'assurer que la modale de confirmation apparaît correctement
+                    console.log("La modale de confirmation est maintenant affichée");
+                }
+            });
+        }
+        
+        // Fermeture de la modal
+        document.getElementById('closeModal').addEventListener('click', function() {
+            window.parent.postMessage('closeModal', '*');
+        });
+        
+        // Gestion du clic sur le bouton de paiement
+        document.getElementById('submit-button').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Récupération de l'email uniquement
+            const emailInput = document.querySelector('.email-input');
+            const email = emailInput.value.trim();
+            
+            // Validation du champ email uniquement
+            if (!email) {
+                alert('Veuillez saisir votre adresse email');
+                emailInput.focus();
+                return;
+            }
+            
+            // Validation du format de l'email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Veuillez saisir une adresse email valide');
+                emailInput.focus();
+                return;
+            }
+            
+            // Simuler le traitement du paiement (à remplacer par votre logique de paiement réelle)
+            setTimeout(function() {
+                // Après le succès du paiement, ouvrir la modale de confirmation
+                openConfirmationModal(email);
+            }, 1000);
+        });
+        
+        // Ajouter un timeout pour alerter si les données n'ont pas été reçues après un délai
+        setTimeout(function() {
+            if (!dataReceived) {
+                console.warn("Aucune donnée reçue après le délai d'attente");
+                
+                // Vous pouvez afficher un message personnalisé ou rediriger l'utilisateur
+                document.getElementById('loading-state').innerHTML = `
+                    <p style="color: #d9534f; margin-top: 20px;">
+                        Impossible de charger les données de l'œuvre. 
+                        Veuillez fermer et réessayer.
+                    </p>
+                    <button onclick="window.parent.postMessage('closeModal', '*')" 
+                            style="margin-top: 20px; padding: 10px 20px; background-color: #4cd137; 
+                            color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Fermer
+                    </button>
+                `;
+            }
+        }, 5000); // 5 secondes d'attente maximum
+    </script>
+</body>
+</html>

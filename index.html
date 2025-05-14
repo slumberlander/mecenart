@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MecènArt - Galerie</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: white;
+        }
+        
+        header {
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #f0f0f0;
+            position: relative;
+        }
+        
+        .logo {
+            max-width: 200px;
+        }
+        
+        .nav-icons {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nav-icon {
+            display: inline-block;
+            text-align: center;
+            font-size: 12px;
+        }
+        
+        .icon {
+            width: 20px;
+            height: 20px;
+            margin-bottom: 5px;
+            background-color: #ddd;
+            border-radius: 50%;
+        }
+        
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .artwork-card {
+            width: 45%;
+            margin: 10px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            text-decoration: none;
+            color: black;
+            display: flex;
+        }
+        
+        .artwork-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .artwork-image {
+            width: 50%;
+            height: 300px;
+            object-fit: cover;
+            background-color: #e0e0e0;
+        }
+        
+        .artwork-info {
+            width: 50%;
+            padding: 15px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .price-section {
+            margin-bottom: 15px;
+        }
+        
+        .ticket-number {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .price {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .aspirants {
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        
+        .chance {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        
+        .collect-chance {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 5px;
+            text-align: center;
+        }
+        
+        .artist-info {
+            margin-top: auto;
+            padding-top: 20px;
+        }
+        
+        .artist-name {
+            font-weight: bold;
+        }
+        
+        .artwork-title {
+            margin-top: 5px;
+        }
+        
+        .artwork-details {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+        
+        .green-drop {
+            color: green;
+            font-weight: bold;
+        }
+        
+        .value {
+            color: #0066cc;
+            font-weight: bold;
+        }
+        
+        /* Style pour le bouton "Proposer une œuvre" */
+        .propose-btn-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .propose-btn {
+            background-color: #3a9c4c;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .propose-btn:hover {
+            background-color: #2d7a3c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Style pour le bouton désactivé */
+        .propose-btn-disabled {
+            background-color: #a0a0a0;
+            color: #e0e0e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .propose-btn-disabled:hover {
+            background-color: #a0a0a0;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Style pour la bannière fixe (ancien texte défilant) */
+        .banner-container {
+            width: 100%;
+            background-color: #f5f5f5;
+            margin: 20px 0;
+            padding: 15px 0;
+            border-top: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: center;
+        }
+        
+        .banner-content {
+            color: #000000; /* Changé de #3a9c4c à noir */
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 1.5;
+            max-width: 80%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .gallery {
+                flex-direction: column;
+            }
+            
+            .artwork-card {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+       <img src="images/mecenart_logo.png" alt="MecènArt Logo" class="logo">
+        <div class="nav-icons">
+            <div class="nav-icon">
+                <div class="icon"></div>
+                <div>Recherches</div>
+            </div>
+            <div class="nav-icon">
+                <div class="icon"></div>
+                <div>Favoris</div>
+            </div>
+            <div class="nav-icon">
+                <div class="icon"></div>
+                <div>Messages</div>
+            </div>
+            <div class="nav-icon">
+                <div class="icon"></div>
+                <div>Se connecter</div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Bouton "Proposer une œuvre" -->
+    <div class="propose-btn-container">
+        <button id="proposeBtn" class="propose-btn propose-btn-disabled" disabled onclick="window.open('proposer-oeuvre.html', '_blank')">Proposer une œuvre</button>
+    </div>
+    
+    <!-- Bannière fixe (remplace le texte défilant) -->
+    <div class="banner-container">
+        <div class="banner-content">
+          MecènArt est un site marchand d'art. Le prix d'une œuvre est partagé en jetons de mécénat. L'œuvre trouve son acquéreur par tirage au sort parmi les mécènes lorsque tous ses jetons sont vendus
+        </div>
+    </div>
+    
+    <div class="gallery">
+        <a href="artwork1.html" class="artwork-card">
+         <img src="images/louise_debout.jpg" alt="Louise debout" class="artwork-image">
+            <div class="artwork-info">
+                <div class="price-section">
+                    <div class="ticket-number">Jeton de mécénat : <span class="value">5</span> <span class="green-drop">€</span></div>
+                    <div class="price">Prix de l'œuvre : <span class="value">400</span> <span class="green-drop">€</span></div>
+                    <div class="aspirants">Jetons vendus : <span class="value">79/80</span></div>
+                    <div class="chance">Chance de collectionner :</div>
+                    <div class="collect-chance">1/80</div>
+                </div>
+                <div class="artist-info">
+                    <div class="artist-name">Thibaut Suaviat</div>
+                    <div class="artwork-title">Louise debout</div>
+                    <div class="artwork-details">Plâtre 10x10x25</div>
+                </div>
+            </div>
+        </a>
+        
+        <a href="artwork2.html" class="artwork-card">
+            <img src="images/monique.jpg" alt="la dame à la grosse touffe" class="artwork-image">
+            <div class="artwork-info">
+                <div class="price-section">
+                    <div class="ticket-number">Jeton de mécénat : <span class="value">2</span> <span class="green-drop">€</span></div>
+                    <div class="price">Prix de l'œuvre : <span class="value">200</span> <span class="green-drop">€</span></div>
+                    <div class="aspirants">Jetons vendus: <span class="value">99/100</span></div>
+                    <div class="chance">Chance de collectionner :</div>
+                    <div class="collect-chance">1/100</div>
+                </div>
+                <div class="artist-info">
+                    <div class="artist-name">Mathieu Schoettl</div>
+                    <div class="artwork-title">la dame à la grosse touffe</div>
+                    <div class="artwork-details">techniques mixtes 20*30</div>
+                </div>
+            </div>
+        </a>
+        
+        <a href="artwork3.html" class="artwork-card">
+         <img src="images/armure.jpg" alt="armure" class="artwork-image">
+            <div class="artwork-info">
+                <div class="price-section">
+                    <div class="ticket-number">Jeton de mécénat : <span class="value">200</span> <span class="green-drop">€</span></div>
+                    <div class="price">Prix de l'œuvre : <span class="value">4000</span> <span class="green-drop">€</span></div>
+                    <div class="aspirants">Jetons vendus: <span class="value">11/20</span></div>
+                    <div class="chance">Chance de collectionner :</div>
+                    <div class="collect-chance">1/20</div>
+                </div>
+                <div class="artist-info">
+                    <div class="artist-name">Mathieu Schoettl</div>
+                    <div class="artwork-title">armure</div>
+                    <div class="artwork-details">techniques mixtes 20*30</div>
+                </div>
+            </div>
+        </a>
+        
+        <a href="artwork4.html" class="artwork-card">
+          <img src="images/branches.jpg" alt="Luz de la Cartuja" class="artwork-image">
+            <div class="artwork-info">
+                <div class="price-section">
+                    <div class="ticket-number">Jeton de mécénat : <span class="value">3</span> <span class="green-drop">€</span></div>
+                    <div class="price">Prix de l'œuvre : <span class="value">150</span> <span class="green-drop">€</span></div>
+                    <div class="aspirants">Jetons vendus : <span class="value">49/50</span></div>
+                    <div class="chance">Chance de collectionner :</div>
+                    <div class="collect-chance">1/50</div>
+                </div>
+                <div class="artist-info">
+                    <div class="artist-name">Thibaut Suaviat</div>
+                    <div class="artwork-title">Luz de la Cartuja</div>
+                    <div class="artwork-details">Etching on copper plate</div>
+                </div>
+            </div>
+        </a>
+    </div>
+</body>
+<script>
+    // Fonction pour obtenir les paramètres d'URL
+    function getURLParam(param) {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        return urlParams.get(param);
+    }
+    
+    // Fonction pour vérifier si le stockage local a une entrée indiquant une redirection
+    function checkRedirection() {
+        const button = document.getElementById('proposeBtn');
+        const fromRedirect = localStorage.getItem('fromRedirect');
+        const fromPage = getURLParam('from');
+        
+        // Activer le bouton si l'utilisateur vient de confirmation-modale.html ou tirage.html
+        if (fromRedirect === 'true' || fromPage === 'confirmation' || fromPage === 'tirage') {
+            button.classList.remove('propose-btn-disabled');
+            button.disabled = false;
+            
+            // Nettoyer le stockage local
+            localStorage.removeItem('fromRedirect');
+        }
+    }
+    
+    // Exécuter la vérification au chargement de la page
+    window.addEventListener('DOMContentLoaded', checkRedirection);
+</script>
+</html>

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MecènArt - Proposer une œuvre</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f8f8f8;
+            color: #333;
+        }
+        
+        header {
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #f0f0f0;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .logo {
+            max-width: 200px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 28px;
+        }
+        
+        .form-intro {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            border-color: #3a9c4c;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(58, 156, 76, 0.2);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .file-upload {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 6px;
+            background-color: #f9f9f9;
+            transition: all 0.3s;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        
+        .file-upload:hover {
+            border-color: #3a9c4c;
+            background-color: #f0f9f1;
+        }
+        
+        .file-upload input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .upload-icon {
+            font-size: 40px;
+            color: #3a9c4c;
+            margin-bottom: 15px;
+        }
+        
+        .file-hint {
+            font-size: 14px;
+            color: #888;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .preview-container {
+            width: 100%;
+            height: 200px;
+            margin-top: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .preview-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .actions {
+            grid-column: span 2;
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .submit-btn {
+            background-color: #3a9c4c;
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .submit-btn:hover {
+            background-color: #2d7a3c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .pricing-info {
+            display: flex;
+            align-items: center;
+            background-color: #f0f9f1;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 8px;
+        }
+        
+        .info-icon {
+            margin-right: 10px;
+            color: #3a9c4c;
+            font-size: 20px;
+        }
+        
+        .info-text {
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .required {
+            color: #e74c3c;
+            margin-left: 3px;
+        }
+        
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            color: #3a9c4c;
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            form {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+            
+            .actions {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="images/mecenart_logo.png" alt="MecènArt Logo" class="logo">
+    </header>
+    
+    <div class="container">
+        <h1>Proposer une œuvre</h1>
+        
+        <p class="form-intro">
+            Vous êtes artiste et souhaitez proposer votre œuvre sur MecènArt ? 
+            Remplissez ce formulaire pour soumettre votre création et permettre aux mécènes de la découvrir.
+        </p>
+        
+        <form id="artwork-form">
+            <div class="form-group">
+                <label for="artist-name">Nom de l'artiste <span class="required">*</span></label>
+                <input type="text" id="artist-name" name="artist-name" placeholder="Votre nom d'artiste" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="artwork-title">Titre de l'œuvre <span class="required">*</span></label>
+                <input type="text" id="artwork-title" name="artwork-title" placeholder="Titre de votre création" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="artwork-details">Détails techniques <span class="required">*</span></label>
+                <input type="text" id="artwork-details" name="artwork-details" placeholder="Ex: Huile sur toile 30x40cm" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="artwork-price">Prix de l'œuvre (€) <span class="required">*</span></label>
+                <input type="number" id="artwork-price" name="artwork-price" min="1" placeholder="Valeur de l'œuvre en euros" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="ticket-price">Prix du ticket (€) <span class="required">*</span></label>
+                <input type="number" id="ticket-price" name="ticket-price" min="1" placeholder="Prix du ticket en euros" required>
+                
+                <div class="pricing-info">
+                    <div class="info-icon">ℹ️</div>
+                    <div class="info-text">
+                        Veillez à bien équilibrer vos valeurs pour que votre offre soit attractive. La probabilité d'acquérir votre œuvre est de 1/le nombre de mécènes.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="patrons-count">Nombre de mécènes souhaité <span class="required">*</span></label>
+                <select id="patrons-count" name="patrons-count" required>
+                    <option value="" disabled selected>Choisir un nombre</option>
+                    <option value="20">20 mécènes</option>
+                    <option value="50">50 mécènes</option>
+                    <option value="80">80 mécènes</option>
+                    <option value="100">100 mécènes</option>
+                    <option value="custom">Personnalisé</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="custom-patrons-container" style="display: none;">
+                <label for="custom-patrons">Nombre personnalisé <span class="required">*</span></label>
+                <input type="number" id="custom-patrons" name="custom-patrons" min="10" max="200" placeholder="Entre 10 et 200">
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="artwork-description">Description de l'œuvre</label>
+                <textarea id="artwork-description" name="artwork-description" placeholder="Parlez-nous de votre œuvre, de son histoire, de votre démarche artistique..."></textarea>
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="artwork-image">Image de l'œuvre (format JPG) <span class="required">*</span></label>
+                <div class="file-upload">
+                    <div class="upload-icon">📷</div>
+                    <span>Cliquez ou déposez votre image ici</span>
+                    <input type="file" id="artwork-image" name="artwork-image" accept=".jpg,.jpeg" required>
+                    <div class="file-hint">L'image doit être au format JPG, de bonne qualité et bien représenter votre œuvre</div>
+                </div>
+                
+                <div class="preview-container">
+                    <img src="" alt="Aperçu de l'image" class="preview-image">
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button type="submit" class="submit-btn">Soumettre mon œuvre</button>
+            </div>
+        </form>
+        
+        <a href="index.html" class="back-link">Retour à la galerie</a>
+    </div>
+    
+    <script>
+        // Afficher le champ personnalisé si "Personnalisé" est sélectionné
+        document.getElementById('patrons-count').addEventListener('change', function() {
+            const customPatronsContainer = document.getElementById('custom-patrons-container');
+            if (this.value === 'custom') {
+                customPatronsContainer.style.display = 'block';
+                document.getElementById('custom-patrons').setAttribute('required', 'required');
+            } else {
+                customPatronsContainer.style.display = 'none';
+                document.getElementById('custom-patrons').removeAttribute('required');
+            }
+        });
+        
+        // Prévisualisation de l'image
+        document.getElementById('artwork-image').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                const previewContainer = document.querySelector('.preview-container');
+                const previewImage = document.querySelector('.preview-image');
+                
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                }
+                
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Soumission du formulaire
+        document.getElementById('artwork-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validation supplémentaire
+            let isValid = true;
+            
+            // Validation du nombre de mécènes personnalisé
+            if (document.getElementById('patrons-count').value === 'custom') {
+                const customValue = document.getElementById('custom-patrons').value;
+                if (customValue < 10 || customValue > 200) {
+                    alert('Le nombre de mécènes personnalisé doit être entre 10 et 200.');
+                    isValid = false;
+                }
+            }
+            
+            // Validation du rapport entre le prix de l'œuvre et le prix du ticket
+            const artworkPrice = parseFloat(document.getElementById('artwork-price').value);
+            const ticketPrice = parseFloat(document.getElementById('ticket-price').value);
+            const patronsCount = document.getElementById('patrons-count').value === 'custom' 
+                ? parseInt(document.getElementById('custom-patrons').value)
+                : parseInt(document.getElementById('patrons-count').value);
+            
+            if (isValid && ticketPrice * patronsCount < artworkPrice * 0.7) {
+                if (!confirm('Attention : Le prix total des tickets est significativement inférieur au prix de l\'œuvre. Cela pourrait rendre votre offre moins attractive. Voulez-vous continuer quand même ?')) {
+                    isValid = false;
+                }
+            }
+            
+            // Si tout est valide, afficher un message de succès
+            if (isValid) {
+                alert('Votre œuvre a été soumise avec succès ! Nous l\'examinerons et vous contacterons rapidement.');
+                this.reset();
+                document.querySelector('.preview-container').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

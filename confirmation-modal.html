@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmation - MecènArt</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .confirmation-container {
+            max-width: 900px;
+            width: 100%;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        
+        .image-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .artwork-image {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+        
+        .message-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.85);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .success-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #4cd137;
+            font-weight: bold;
+        }
+        
+        .success-message {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .artist-name {
+            font-weight: bold;
+            color: #4a6fa5;
+        }
+        
+        .artwork-title {
+            font-style: italic;
+            font-weight: bold;
+        }
+        
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+            z-index: 10;
+        }
+        
+        .close-button:hover {
+            background-color: #44bd32;
+        }
+        
+        /* État de chargement */
+        .loading-state {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: #4cd137;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Cacher le contenu principal jusqu'à ce que les données soient chargées */
+        .content-wrapper {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .message-overlay {
+                width: 90%;
+                padding: 20px;
+            }
+            
+            .success-title {
+                font-size: 20px;
+            }
+            
+            .success-message {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="confirmation-container">
+        <!-- État de chargement initial -->
+        <div id="loading-state" class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Chargement de la confirmation...</p>
+        </div>
+        
+        <!-- Contenu principal (caché au départ) -->
+        <div id="content-wrapper" class="content-wrapper">
+            <button class="close-button" id="closeModal">&times;</button>
+            
+            <div class="image-container">
+                <img src="" alt="" class="artwork-image" id="artwork-image">
+                
+                <div class="message-overlay">
+                    <div class="success-title">Félicitations !</div>
+                    <div class="success-message">
+                        Bravo, vous êtes mécène de <span class="artist-name" id="artist-name"></span>, 
+                        et vous êtes également le <span id="position-number"></span>-ème aspirant en lice
+                        pour acquérir <span class="artwork-title" id="artwork-title"></span>. 
+                        Le tirage au sort du collectionneur de cette œuvre aura lieu 
+                        dès que les <span id="total-players"></span> contributeurs auront été réunis.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables pour stocker les données reçues
+        let nomArtiste = "";
+        let titreOeuvre = "";
+        let nombreActuel = 0;
+        let nombreTotal = 0;
+        let imageSrc = "";
+        let userEmail = ""; // Nouvelle variable pour stocker l'email de l'utilisateur
+        let dataReceived = false;
+        
+        // Écouteur pour recevoir les messages de la page principale
+        window.addEventListener('message', function(event) {
+            // Fermer la modale
+            if (event.data === 'closeModal') {
+                window.parent.postMessage('closeModal', '*');
+                localStorage.setItem('fromRedirect', 'true');
+                top.location.href = 'index.html?from=confirmation'; // Redirection vers index.html avec paramètre
+            }
+            
+            // Recevoir les données de l'œuvre
+            if (event.data && event.data.type === 'confirmationData') {
+                const confirmationData = event.data.data;
+                
+                // Mettre à jour les variables
+                nomArtiste = confirmationData.artist;
+                titreOeuvre = confirmationData.title;
+                nombreActuel = confirmationData.currentPosition;
+                nombreTotal = confirmationData.totalPlayers;
+                imageSrc = confirmationData.imageSrc;
+                userEmail = confirmationData.email || ""; // Récupération de l'email
+                
+                // Marquer que les données ont été reçues
+                dataReceived = true;
+                
+                // Mettre à jour l'interface utilisateur
+                updateUI();
+                
+                // Afficher le contenu et masquer l'état de chargement
+                showContent();
+            }
+        }, false);
+        
+        // Fonction pour afficher le contenu une fois les données reçues
+        function showContent() {
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('content-wrapper').style.display = 'block';
+        }
+        
+        // Fonction pour mettre à jour l'interface utilisateur
+        function updateUI() {
+            // Mettre à jour les informations sur l'œuvre dans l'interface
+            document.getElementById('artist-name').textContent = nomArtiste;
+            document.getElementById('artwork-title').textContent = titreOeuvre;
+            document.getElementById('position-number').textContent = nombreActuel + 1;
+            document.getElementById('total-players').textContent = nombreTotal;
+            
+            // Mettre à jour l'image
+            const artworkImage = document.getElementById('artwork-image');
+            artworkImage.src = imageSrc;
+            artworkImage.alt = titreOeuvre;
+            
+            // Mettre à jour le titre de la page
+            document.title = `Confirmation - MecènArt - ${titreOeuvre}`;
+            
+            // Vérifier si le nombre actuel + 1 est égal au nombre total
+            if (nombreActuel + 1 === nombreTotal) {
+                // Attendre 5 secondes puis ouvrir la modale de tirage
+                setTimeout(ouvrirModaleTirage, 5000);
+            }
+        }
+        
+        // Fonction pour ouvrir la modale de tirage
+        function ouvrirModaleTirage() {
+            // Créer un iframe pour la nouvelle modale
+            const tirageIframe = document.createElement('iframe');
+            tirageIframe.style.position = 'fixed';
+            tirageIframe.style.top = '0';
+            tirageIframe.style.left = '0';
+            tirageIframe.style.width = '100%';
+            tirageIframe.style.height = '100%';
+            tirageIframe.style.border = 'none';
+            tirageIframe.style.zIndex = '1000'; // S'assurer qu'il est au-dessus de la modale actuelle
+            tirageIframe.src = 'tirage.html'; // Le chemin vers votre nouveau fichier HTML
+            
+            // Ajouter l'iframe au document
+            document.body.appendChild(tirageIframe);
+            
+            // Écouteur pour les messages de l'iframe de tirage
+            window.addEventListener('message', function(event) {
+                // Si la modale de tirage demande à se fermer
+                if (event.data === 'closeTirageModal') {
+                    // Supprimer l'iframe de tirage
+                    if (tirageIframe && tirageIframe.parentNode) {
+                        tirageIframe.parentNode.removeChild(tirageIframe);
+                    }
+                    
+                    // Fermer également cette modale
+                    window.parent.postMessage('closeModal', '*');
+                    localStorage.setItem('fromRedirect', 'true');
+                    top.location.href = 'index.html?from=confirmation'; // Redirection vers index.html avec paramètre
+                }
+                
+                // Si la modale de tirage est prête, envoyer les données
+                if (event.data === 'tirageModalReady') {
+                    // Générer un gagnant aléatoire
+                    const nomGagnant = genererGagnantAleatoire();
+                    
+                    // Préparer les données pour le tirage
+                    const tirageData = {
+                        artist: nomArtiste,
+                        title: titreOeuvre,
+                        winner: nomGagnant,
+                        email: userEmail, // Ajout de l'email
+                        nombreTotal: nombreTotal // Ajout du nombre total de joueurs
+                    };
+                    
+                    // Envoyer les données à l'iframe de tirage
+                    tirageIframe.contentWindow.postMessage({
+                        type: 'tirageData',
+                        data: tirageData
+                    }, '*');
+                }
+            });
+        }
+        
+        // Fonction pour générer un gagnant aléatoire
+        function genererGagnantAleatoire() {
+            // Simuler une liste de noms pour l'exemple
+            const nomsPossibles = [
+                "Sophie Martin",
+                "Thomas Bernard",
+                "Julie Dubois",
+                "Alexandre Petit",
+                "Camille Moreau",
+                "Pierre Lefèvre",
+                "Émilie Roux",
+                "Nicolas Lambert",
+                "Marie Girard",
+                "Antoine Leroy"
+            ];
+            
+            // Choisir un nom aléatoire dans la liste
+            const indexAleatoire = Math.floor(Math.random() * nomsPossibles.length);
+            return nomsPossibles[indexAleatoire];
+        }
+        
+        // Fermeture de la modal
+        document.getElementById('closeModal').addEventListener('click', function() {
+            window.parent.postMessage('closeModal', '*');
+            localStorage.setItem('fromRedirect', 'true');
+            top.location.href = 'index.html?from=confirmation'; // Redirection vers index.html avec paramètre
+        });
+        
+        // Ajouter un timeout pour alerter si les données n'ont pas été reçues après un délai
+        setTimeout(function() {
+            if (!dataReceived) {
+                console.warn("Aucune donnée reçue après le délai d'attente");
+                
+                // Afficher un message personnalisé
+                document.getElementById('loading-state').innerHTML = `
+                    <p style="color: #d9534f; margin-top: 20px;">
+                        Impossible de charger les données de confirmation. 
+                        Veuillez fermer et réessayer.
+                    </p>
+                    <button onclick="window.parent.postMessage('closeModal', '*'); localStorage.setItem('fromRedirect', 'true'); top.location.href = 'index.html?from=confirmation';" 
+                            style="margin-top: 20px; padding: 10px 20px; background-color: #4cd137; 
+                            color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Fermer
+                    </button>
+                `;
+            }
+        }, 5000); // 5 secondes d'attente maximum
+    </script>
+</body>
+</html>

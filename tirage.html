@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tirage - MecènArt</title>
+    <!-- SDK EmailJS le plus récent -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .tirage-container {
+            max-width: 900px;
+            width: 100%;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .tirage-title {
+            font-size: 28px;
+            margin-bottom: 30px;
+            color: #4a6fa5;
+            font-weight: bold;
+        }
+        
+        .tirage-message {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .countdown {
+            font-size: 72px;
+            font-weight: bold;
+            color: #4cd137;
+            margin: 30px 0;
+        }
+        
+        .result-container {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .winner-title {
+            font-size: 24px;
+            color: #4cd137;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .winner-name {
+            font-size: 28px;
+            color: #4a6fa5;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            animation: confetti-fall 3s ease-in-out infinite;
+        }
+        
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+        
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+            z-index: 10;
+        }
+        
+        .action-button {
+            display: inline-block;
+            width: 200px;
+            margin: 20px 10px 0;
+            padding: 12px;
+            background-color: #4cd137;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .action-button:hover {
+            background-color: #44bd32;
+        }
+        
+        .secondary-button {
+            background-color: #4a6fa5;
+        }
+        
+        .secondary-button:hover {
+            background-color: #3b5998;
+        }
+
+        @media (max-width: 768px) {
+            .tirage-container {
+                width: 90%;
+                padding: 20px;
+            }
+            
+            .tirage-title {
+                font-size: 22px;
+            }
+            
+            .tirage-message {
+                font-size: 16px;
+            }
+            
+            .countdown {
+                font-size: 48px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="tirage-container">
+        <button class="close-button" id="closeModal">&times;</button>
+        
+        <div id="tirage-step-1">
+            <div class="tirage-title">Tirage au sort imminent !</div>
+            <div class="tirage-message">
+                Félicitations ! Tous les mécènes sont réunis. Le tirage au sort du collectionneur va commencer dans :
+            </div>
+            <div class="countdown" id="countdown">5</div>
+        </div>
+        
+        <div id="tirage-step-2" style="display: none;">
+            <div class="tirage-title">Tirage en cours</div>
+            <div class="tirage-message">
+                Notre algorithme utilise l'API certifiée RANDOM.ORG pour choisir un collectionneur de l'œuvre parmi tous les mécènes...
+            </div>
+            <div class="countdown">
+                <div class="loading-spinner" style="border: 4px solid rgba(0, 0, 0, 0.1); width: 40px; height: 40px; border-radius: 50%; border-left-color: #4cd137; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+                <style>
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                </style>
+            </div>
+        </div>
+        
+        <div id="tirage-step-3" style="display: none;">
+            <div class="tirage-title">Résultat du tirage</div>
+            <div class="result-container">
+                <div class="winner-title">Le collectionneur est :</div>
+                <div class="winner-name" id="winner-name">Jean Dupont</div>
+            </div>
+            <div class="tirage-message" style="margin-top: 20px;">
+                Merci à tous les mécènes pour leur contribution ! Nous informons l'artiste et le collectionneur de cette bonne nouvelle et des modalités de livraison de l'oeuvre'.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables pour stocker les données reçues
+        let nomGagnant = "";
+        let nomArtiste = "";
+        let titreOeuvre = "";
+        let userEmail = ""; // Nouvelle variable pour stocker l'email
+        let nombreTotal = 0; // Variable pour stocker le nombre total de joueurs
+        
+        // Initialisation de EmailJS
+        (function() {
+            // Votre clé publique EmailJS
+            emailjs.init("c3ghQNwgojRkAlN2h");
+            
+            // Méthode alternative pour gérer les erreurs EmailJS
+            window.addEventListener('error', function(event) {
+                if (event.message && event.message.includes('emailjs')) {
+                    console.error('EmailJS error intercepted:', event.message);
+                }
+            });
+        })();
+        
+        // Fonction pour fermer la modal
+        function closeModal() {
+            window.parent.postMessage('closeTirageModal', '*');
+            localStorage.setItem('fromRedirect', 'true');
+            top.location.href = 'index.html?from=tirage'; // Redirection vers index.html avec paramètre
+        }
+        
+        // Gestion du clic sur le bouton fermer
+        document.getElementById('closeModal').addEventListener('click', closeModal);
+        
+        // Écouteur pour recevoir les messages de la page principale
+        window.addEventListener('message', function(event) {
+            // Recevoir les données pour le tirage
+            if (event.data && event.data.type === 'tirageData') {
+                const tirageData = event.data.data;
+                
+                // Mettre à jour les variables
+                nomGagnant = tirageData.winner || "Jean Dupont"; // Valeur par défaut si non fournie
+                nomArtiste = tirageData.artist || "";
+                titreOeuvre = tirageData.title || "";
+                userEmail = tirageData.email || ""; // Récupération de l'email
+                nombreTotal = tirageData.nombreTotal || 0; // Récupération du nombre total
+                
+                // Mettre à jour l'interface
+                document.getElementById('winner-name').textContent = nomGagnant;
+                
+                // Commencer le compte à rebours
+                startCountdown();
+            }
+        }, false);
+        
+        // Fonction pour démarrer le compte à rebours
+        function startCountdown() {
+            let countdown = 5;
+            const countdownElement = document.getElementById('countdown');
+            
+            const timer = setInterval(function() {
+                countdown--;
+                countdownElement.textContent = countdown;
+                
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    showTirageStep2();
+                }
+            }, 1000);
+        }
+        
+        // Fonction pour afficher l'étape 2 du tirage
+        function showTirageStep2() {
+            document.getElementById('tirage-step-1').style.display = 'none';
+            document.getElementById('tirage-step-2').style.display = 'block';
+            
+            // Simuler le temps de tirage (3 secondes)
+            setTimeout(showTirageStep3, 3000);
+        }
+        
+        // Fonction pour afficher l'étape 3 du tirage (résultat)
+        function showTirageStep3() {
+            document.getElementById('tirage-step-2').style.display = 'none';
+            document.getElementById('tirage-step-3').style.display = 'block';
+            document.querySelector('.result-container').style.display = 'block';
+            
+            // Envoyer l'email avec les informations de tirage
+           sendEmail();
+          ////////////////////////////////////////////////////////////////////////////////////////////////  
+            // Créer des confettis pour célébrer
+            createConfetti();
+        }
+        
+        // Fonction pour créer des confettis
+        function createConfetti() {
+            const colors = ['#f00', '#0f0', '#00f', '#ff0', '#f0f', '#0ff'];
+            const container = document.querySelector('.tirage-container');
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                container.appendChild(confetti);
+            }
+        }
+        
+        // Fonction pour envoyer un email avec EmailJS
+        function sendEmail() {
+            // Si aucun email n'est fourni, sortir de la fonction
+            if (!userEmail) {
+                console.error("Aucune adresse email fournie pour l'envoi de l'email");
+                return;
+            }
+            
+            // Création des paramètres pour le template
+            const templateParams = {
+                nom: String(nomArtiste),
+                oeuvre: String(titreOeuvre),
+                nombre: String(nombreTotal),
+                to_email: userEmail,
+                from_name: "MecènArt",
+                reply_to: "contact@mecenart.com"
+            };
+            
+            // Débogage - Afficher les paramètres exacts envoyés
+            console.log("Paramètres envoyés à EmailJS depuis tirage.html:", JSON.stringify(templateParams));
+            
+            // Envoi de l'email avec EmailJS
+            emailjs.send("service_a07yz1j", "template_fszjsms", templateParams)
+                .then(function(response) {
+                    console.log("Email de tirage envoyé avec succès!", response.status, response.text);
+                })
+                .catch(function(error) {
+                    console.error("Erreur lors de l'envoi de l'email de tirage:", error);
+                    if (error.text) {
+                        console.error("Message d'erreur:", error.text);
+                    }
+                });
+        }
+        
+        // Notifier que le modal est prêt
+        window.parent.postMessage('tirageModalReady', '*');
+    </script>
+</body>
+</html>
